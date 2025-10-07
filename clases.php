@@ -72,8 +72,7 @@ class GestorInventario {
 
     private function agregar($nuevoProducto){
         
-        $id = obtenerMaximoId() + 1 ;
-        $this->items[] = $nuevoProducto;
+        $id = $this->obtenerMaximoId() + 1;
         $this->persistirEnArchivo();
         return;
     }
@@ -99,11 +98,7 @@ class GestorInventario {
     }
 
     private function cambiarEstado($idProducto, $stadoNuevo){
-        if ($item['id'] == $idProducto){
-
-        }
-        $this->persistirEnArchivo();
-        return;
+       return;
     }
 
     private function filtrarPorEstado($idProducto,$estadoNuevo){
