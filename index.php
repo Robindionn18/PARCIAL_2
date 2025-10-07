@@ -18,18 +18,23 @@ $filtroEstado = $_GET['estado'] ?? '';
 // Procesar las diferentes operaciones
 if ($operacion === 'crear' && !empty($_GET['nombre'])) {
     $notificacion = "Producto agregado correctamente.";
+    $item=$gestor->crearInstancia($_GET);
+    $gestor->agregar($item);
     
 } elseif ($operacion === 'modificar' && !empty($_GET['id'])) {
     $notificacion = "Producto modificado correctamente.";
-    
+    $gestor->actualizar($itemParaEditar);
+
 } elseif ($operacion === 'eliminar' && !empty($_GET['id'])) {
     $notificacion = "Producto eliminado correctamente.";
+    $gestor->eliminar($_GET['id']);
     
 } elseif ($operacion === 'cambiar_estado' && !empty($_GET['id']) && !empty($_GET['nuevo_estado'])) {
     $notificacion = "Estado actualizado correctamente.";
+    $gestor->cambiarEstado($_GET['id'],$_GET['estado']);
     
 } elseif ($operacion === 'editar' && !empty($_GET['id'])) {
-
+    $itemParaEditar=$gestor->obtenerPorId($_GET['id']);
 }
 
 // Obtener productos (con o sin filtro)

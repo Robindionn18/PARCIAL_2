@@ -1,7 +1,10 @@
 <?php
 // Archivo: clases.php
 
-class Producto {
+interface Inventariable{
+    public function obtenerInformacionInventario();
+}
+abstract class Producto implements Inventariable {
     public $id;
     public $nombre;
     public $descripcion;
@@ -16,6 +19,39 @@ class Producto {
                 $this->$clave = $valor;
             }
         }
+    }
+}
+
+class ProductoElectronico extends Producto{
+    public $garantiaMeses;
+    public function __construct($datos){
+        parent::__construct($datos);
+        $this->garantiaMeses = $datos['garantiaMeses'] ?? null;
+    }
+    function obtenerInformacionInventario(){
+        return "Meses de garanía: " . $this->garantiaMeses;
+    }
+}
+
+class ProductoAlimento extends Producto{
+    public $fechaVencimiento;
+    public function __construct($datos){
+        parent::__construct($datos);
+        $this->fechaVencimiento = $datos['fechaVencimiento'] ?? null;
+    }
+    function obtenerInformacionInventario(){
+        return "Fecha de vemcimiento: " . $this->fechaVencimiento;
+    }
+}
+
+class ProductoRopa extends Producto{
+    public $talla;
+    public function __construct($datos){
+        parent::__construct($datos);
+        $this->talla = $datos['talla'] ?? null;
+    }
+    function obtenerInformacionInventario(){
+        return "Talla: " . $this->talla;
     }
 }
 
@@ -43,7 +79,7 @@ class GestorInventario {
         }
         
         foreach ($arrayDatos as $datos) {
-            $this->items[] = new Producto($datos);
+            $this->crearInstancia($datos);
         }
     }
 
@@ -69,44 +105,73 @@ class GestorInventario {
         
         return max($ids);
     }
-
-    private function agregar($nuevoProducto){
-        
+    function agregar($nuevoProducto){
+       
         $id = $this->obtenerMaximoId() + 1;
         $this->persistirEnArchivo();
         return;
     }
-
-    private function eliminar($idProducto){
+ 
+    function eliminar($idProducto){
         $aux=[];
-
+ 
         foreach ($this->items as $item){
             if ($item['id']==$idProducto){
-                
+               
             }else{
                 $aux[]=$item;
             }
-
-        }   
+ 
+        }  
         $this->items=$aux;
         $this->persistirEnArchivo();
         return;
     }
-
-    private function actualizar($productoActualizado){
-
+ 
+    function actualizar($productoActualizado){
+            foreach ($this->items as $i => $item) {
+            if ($item->id == $productoActualizado->id) {
+                $this->items[$i] = $productoActualizado;
+                break;
+            }
+        }
+        $this->persistirEnArchivo();
     }
 
-    private function cambiarEstado($idProducto, $stadoNuevo){
-       return;
+    function crearInstancia($itemsData){
+    $item="";
+    switch($itemsData['categoria']) {
+        case 'electronico': 
+            $item = new ProductoElectronico($itemsData);
+            break;
+        case 'alimento': 
+            $item = new ProductoAlimento($itemsData);
+            break;
+        case 'ropa': 
+            $item = new ProductoRopa($itemsData);
+            break;
+        }
+    return $item;
     }
 
-    private function filtrarPorEstado($idProducto,$estadoNuevo){
-        return;
+    public function obtenerPorId($id) {
+        foreach ($this->items as $item) {
+            if ($item->id == $id) {
+                return $item;
+            }
+        }
+        return null;
     }
 
-    private function obtenerPorId($idBuscado){
-        return;
+    public function cambiarEstado($idProducto, $estadoNuevo){
+     foreach ($this->items as $recurso) {
+            if ($recurso->id == $idProducto) {
+                $recurso->estado = $estadoNuevo;
+                break;
+            }
+        }
+        $this->persistirEnArchivo();
     }
-
 }
+        
+
